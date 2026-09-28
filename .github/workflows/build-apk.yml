@@ -1,0 +1,39 @@
+name: Build Battle DZ APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download project ZIP
+        run: |
+          wget -O project.zip https://github.com/ishakplay07-lab/BattleDZ/raw/refs/heads/main/BattleDZ_Android_Project.zip
+
+      - name: Extract project
+        run: |
+          unzip -o project.zip -d project
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build APK
+        working-directory: project
+        run: |
+          chmod +x gradlew || true
+          if [ -f gradlew ]; then
+            ./gradlew assembleDebug
+          else
+            gradle assembleDebug
+          fi
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: BattleDZ-APK
+          path: project/app/build/outputs/apk/debug/*.apk
